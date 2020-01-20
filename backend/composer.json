@@ -1,0 +1,55 @@
+{
+    "name": "y_ahiru/test-codecov",
+    "type": "project",
+    "license": "proprietary",
+    "description": "test-codecov",
+    "require": {
+        "php": ">=7.4.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.5",
+        "infection/infection": "^0.15.0",
+        "phpmd/phpmd": "^2.8",
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "squizlabs/php_codesniffer": "^3.5",
+        "phpunit/phpunit": "^8.5",
+        "phpstan/phpstan-phpunit": "^0.12.6",
+        "symfony/var-dumper": "^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "phpunit"
+        ],
+        "tests": [
+            "@cs",
+            "@md",
+            "@stan",
+            "@test"
+        ],
+        "coverage": [
+            "php $(./var/scripts/get_php_coverage_options.sh) ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"
+        ],
+        "md": "phpmd src,tests text ./phpmd.xml",
+        "cs": [
+            "php-cs-fixer fix -v --dry-run",
+            "phpcs --standard=phpcs.xml src;"
+        ],
+        "cs-fix": [
+            "php-cs-fixer fix -v",
+            "phpcbf src tests"
+        ],
+        "ifc": "infection --threads=4 --initial-tests-php-options=\"$(./var/scripts/get_php_coverage_options.sh)\" --filter=$(git diff origin/master --diff-filter=AM --name-only | grep -E 'src\/\/' | paste -sd \",\" -) --ignore-msi-with-no-mutations --min-msi=80",
+        "ifc:all": "infection --initial-tests-php-options=\"$(./var/scripts/get_php_coverage_options.sh)\"",
+        "stan": "phpstan analyse -l max src tests -c phpstan.neon.dist --no-progress"
+    }
+}

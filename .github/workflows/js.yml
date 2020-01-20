@@ -1,0 +1,39 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+       CODECOV_TOKEN: ${{ secrets. CODECOV_TOKEN}}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: setup node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: install
+      working-directory: ./frontend
+      run: yarn
+
+    - name: Run test
+      working-directory: ./frontend
+      run: yarn test --coverage --watchAll=false
+
+    - name: Send Coverage
+      working-directory: ./frontend
+      run: bash <(curl -s https://codecov.io/bash) -cF javascript -f coverage/clover.xml

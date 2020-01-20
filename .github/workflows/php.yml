@@ -1,0 +1,47 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+       CODECOV_TOKEN: ${{ secrets. CODECOV_TOKEN}}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: 7.4
+        extension-csv: mbstring, pcov
+        coverage: pcov
+
+    - name: Check PHP Version
+      work
+      run: php -v
+
+    - name: Check Composer Version
+      run: composer -V
+
+    - name: Check PHP Extensions
+      run: php -m
+
+    - name: Validate composer.json and composer.lock
+      working-directory: ./backend
+      run: composer validate
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
+
+    - name: Run test
+      working-directory: ./backend
+      run: php $(./var/scripts/get_php_coverage_options.sh) ./vendor/bin/phpunit --coverage-clover=build/coverage/clover.xml
+
+    - name: Send Coverage
+      working-directory: ./backend
+      run: bash <(curl -s https://codecov.io/bash) -cF php -f build/coverage/clover.xml
