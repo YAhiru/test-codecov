@@ -21,7 +21,6 @@ jobs:
         coverage: pcov
 
     - name: Check PHP Version
-      work
       run: php -v
 
     - name: Check Composer Version
